@@ -1,5 +1,8 @@
 package jetbrains.kotlin.course.alias.results
 
+import java.io.File
+import kotlinx.serialization.*
+import kotlinx.serialization.json.Json
 import jetbrains.kotlin.course.alias.team.Team
 import jetbrains.kotlin.course.alias.team.TeamService
 import org.springframework.stereotype.Service
@@ -32,4 +35,14 @@ class GameResultsService(private val teamService: TeamService) {
     fun getAllGameResults(): List<GameResult> {
         return gameHistory.reversed()
     }
+
+    fun saveGameHistory(gameHistory: List<GameResult>, filePath: String) {
+        val json = Json.encodeToString(gameHistory)
+        File(filePath).writeText(json)
+    }
+    fun loadGameHistory(filePath: String): List<GameResult> {
+        val json = File(filePath).readText()
+        return Json.decodeFromString(json)
+    }
+
 }

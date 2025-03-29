@@ -3,10 +3,13 @@ package jetbrains.kotlin.course.alias.card
 import jetbrains.kotlin.course.alias.util.Identifier
 import jetbrains.kotlin.course.alias.util.IdentifierFactory
 import org.springframework.stereotype.Service
+import java.io.File
+import kotlinx.serialization.*
+import kotlinx.serialization.json.Json
 
 @Service
 class CardService(
-    private val identifierFactory: IdentifierFactory = IdentifierFactory()
+    internal val identifierFactory: IdentifierFactory = IdentifierFactory()
 ) {
 
     private val cards: List<Card> = generateCards()
@@ -32,4 +35,17 @@ class CardService(
     fun getCardByIndex(index: Int): Card {
         return cards.getOrNull(index) ?: throw IllegalArgumentException("Invalid card index: $index")
     }
+    fun saveCards(cards: List<Card>, filePath: String) {
+        val json = Json.encodeToString(cards)
+        File(filePath).writeText(json)
+    }
+    fun loadCards(filePath: String): List<Card> {
+        val json = File(filePath).readText()
+        return Json.decodeFromString(json)
+    }
+    fun getAllCards(): List<Card> {
+        return cards
+    }
+
+
 }
