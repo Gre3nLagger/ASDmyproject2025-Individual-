@@ -15,6 +15,10 @@ export default function StartScreen({gameStateSetter}: StartScreenProps) {
                 <button className="App-button-base App-button-start" onClick={() => gameStateSetter(GameState.TEAMS)} ></button>
                 <button className="App-button-base App-stat-button App-cursor-none"><p className="font-link-light App-no-margin App-stat-button-p App-cursor-pointer" onClick={() => gameStateSetter(GameState.STAT)} >Previous games results</p></button>
             </div>
+            <div className="App-buttons-container">
+                <button>New Button</button>
+            </div>
+
         </div>
     );
 }

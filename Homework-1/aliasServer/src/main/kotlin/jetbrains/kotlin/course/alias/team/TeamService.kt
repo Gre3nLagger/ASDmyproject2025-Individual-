@@ -8,18 +8,22 @@ import kotlinx.serialization.*
 import kotlinx.serialization.json.Json
 
 @Service
+//identifierFactory with the type IdentifierFactory to generate identifiers for each team
 class TeamService(
-    internal val identifierFactory: IdentifierFactory = IdentifierFactory()
+    private val identifierFactory: IdentifierFactory = IdentifierFactory()
 ) {
-
+    //companion object to the TeamService class and declare the teamsStorage variable to store all previous teams.
     companion object {
+        // The storage type should be MutableMap, which maps Identifier to Team.
+        // initialize it via an empty map.
         val teamsStorage: MutableMap<Identifier, Team> = mutableMapOf()
-
         val allTeams: Map<Identifier, Team> get() = teamsStorage
     }
 
+    //generateTeamsForOneRound method to generate a list of teams and also store all of them in the teamsStorage map.
     fun generateTeamsForOneRound(teamsNumber: Int): List<Team> {
         val newTeams = List(teamsNumber) {
+            //create new teams using identifierFactory from the TeamService class to generate a new ID.
             val id = identifierFactory.uniqueIdentifier()
             val team = Team(id)
             teamsStorage[id] = team
@@ -27,6 +31,8 @@ class TeamService(
         }
         return newTeams
     }
+
+
 
     fun isTeamExists(teamId: Identifier): Boolean {
         return teamsStorage.containsKey(teamId)
@@ -42,6 +48,11 @@ class TeamService(
     fun getAllTeams(): List<Team> {
         return teamsStorage.values.toList()
     }
+    fun restoreTeams(teams: List<Team>) {
+        teamsStorage.clear()
+        teams.forEach { teamsStorage[it.id] = it }
+    }
+
 
 
 }
