@@ -5,6 +5,7 @@ import kotlinx.serialization.*
 import kotlinx.serialization.json.Json
 import jetbrains.kotlin.course.alias.team.Team
 import jetbrains.kotlin.course.alias.team.TeamService
+import jetbrains.kotlin.course.alias.util.StorageConfig
 import org.springframework.stereotype.Service
 
 // type alias GameResult referring to List<Team>
@@ -17,6 +18,20 @@ class GameResultsService(private val teamService: TeamService = TeamService()) {
     companion object {
         //storing the list of game results (MutableList<GameResult>).initialized via an empty list.
         private val gameHistory: MutableList<GameResult> = mutableListOf()
+    }
+    init {
+        // ✅ Ensure gameHistory starts empty when a new instance is created
+        gameHistory.clear()
+    }
+
+    // ✅ Load history manually only when needed
+    fun loadHistory() {
+        val file = File(StorageConfig.GAME_HISTORY_FILE)
+        if (file.exists()) {
+            val loadedHistory = loadGameHistory(file.path)
+            gameHistory.clear() // Avoid duplicate history on multiple loads
+            gameHistory.addAll(loadedHistory)
+        }
     }
 
     //saveGameResults method that adds the result to the gameHistory
@@ -35,6 +50,7 @@ class GameResultsService(private val teamService: TeamService = TeamService()) {
 
 
         gameHistory.add(result)
+        saveGameHistory(gameHistory, StorageConfig.GAME_HISTORY_FILE)
     }
 
     //getAllGameResults method that returns the reversed gameHistory list
@@ -43,13 +59,17 @@ class GameResultsService(private val teamService: TeamService = TeamService()) {
     }
 
     fun saveGameHistory(gameHistory: List<GameResult>, filePath: String) {
-        val json = Json.encodeToString(gameHistory)
-        File(filePath).writeText(json)
+        val file = File(filePath)
+        file.parentFile?.mkdirs()
+        file.writeText(Json.encodeToString(gameHistory))
     }
+
     fun loadGameHistory(filePath: String): List<GameResult> {
-        val json = File(filePath).readText()
-        return Json.decodeFromString(json)
+        val file = File(filePath)
+        if (!file.exists()) return emptyList()
+        return Json.decodeFromString(file.readText())
     }
+
     fun restoreGameResults(results: List<GameResult>) {
         gameHistory.clear()
         gameHistory.addAll(results)
