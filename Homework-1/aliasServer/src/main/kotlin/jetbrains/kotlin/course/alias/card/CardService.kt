@@ -2,6 +2,7 @@ package jetbrains.kotlin.course.alias.card
 
 import jetbrains.kotlin.course.alias.util.Identifier
 import jetbrains.kotlin.course.alias.util.IdentifierFactory
+import jetbrains.kotlin.course.alias.util.StorageConfig
 import jetbrains.kotlin.course.alias.util.words
 import org.springframework.stereotype.Service
 import java.io.File
@@ -20,6 +21,7 @@ class CardService(
     private val cards: List<Card> = generateCards()
 
     companion object {
+        private val usedCards: MutableList<Card> = mutableListOf()
         // WORDS_IN_CARD to store the number of words for the cards and assigned the value 4.
         private const val WORDS_IN_CARD = 4
 
@@ -58,11 +60,28 @@ class CardService(
         File(filePath).writeText(json)
     }
     fun loadCards(filePath: String): List<Card> {
-        val json = File(filePath).readText()
-        return Json.decodeFromString(json)
+        val file = File(filePath)
+        if (!file.exists() || file.readText().isEmpty()) {
+            println("No cards found or file is empty, returning empty list.")
+            return emptyList()
+        }
+        println("Loading cards from $filePath")  // Debugging log
+        return Json.decodeFromString(file.readText())
     }
     fun getAllCards(): List<Card> {
         return cards
+    }
+    fun saveUsedCards() {
+        val json = Json.encodeToString(usedCards)
+        File(StorageConfig.USED_CARDS_FILE).writeText(json)
+    }
+
+    fun loadUsedCards() {
+        val file = File(StorageConfig.USED_CARDS_FILE)
+        if (file.exists()) {
+            usedCards.clear()
+            usedCards.addAll(Json.decodeFromString(file.readText()))
+        }
     }
 
 

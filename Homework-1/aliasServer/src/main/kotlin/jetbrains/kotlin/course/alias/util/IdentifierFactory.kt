@@ -20,6 +20,8 @@ class IdentifierFactory {
         return File(filePath).readText().toInt()
     }
 
-
+    fun setLastAssignedId(lastUId: Int) {
+        counter = lastUId // Set the counter directly to the given integer value
+    }
 
 }
